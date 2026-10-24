@@ -1,14 +1,14 @@
 {
-  "name": "Wielerweer",
-  "short_name": "Wielerweer",
-  "description": "Weer-dashboard voor wielrennen en woon-werk fietsen (Rit + Werk-modus)",
+  "name": "Headwind",
+  "short_name": "Headwind",
+  "description": "Cycling weather: wind, rain and what to wear for your ride",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0D1117",
   "theme_color": "#0D1117",
-  "lang": "nl",
+  "lang": "en",
   "icons": [
     {
       "src": "icon-192.png",

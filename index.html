@@ -1,7 +1,8 @@
 <!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wielerweer</title>
+<title>Headwind</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0D1117">
 <link rel="icon" href="icon-192.png">
@@ -9,13 +10,13 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Wielerweer">
+<meta name="apple-mobile-web-app-title" content="Headwind">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   :root{
     --bg:#0D1117; --card:#161D27; --card-hi:#1C2530; --line:rgba(255,255,255,.07);
-    --txt:#F2F6FA; --muted:#6B7888; --hivis:#C8FA3C; --cool:#48A9F0;
+    --txt:#F2F6FA; --muted:#6B7888; --hivis:#C8FA3C; --cool:#48A9F0; --warn:#E0A93B;
     --disp:'Rajdhani',system-ui,sans-serif; --ui:'Inter',system-ui,-apple-system,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -26,17 +27,11 @@
   .brand h1{font-family:var(--disp);font-weight:700;font-size:26px;letter-spacing:.06em;line-height:1}
   .brand .loc{font-size:12.5px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:6px}
   .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);display:inline-block}
+  .hbtns{display:flex;gap:8px}
   .refresh{background:var(--card);border:1px solid var(--line);color:var(--txt);width:40px;height:40px;border-radius:12px;cursor:pointer;display:grid;place-items:center;transition:.15s;flex:0 0 auto}
   .refresh:active{transform:scale(.93)}
   .refresh.spin svg{animation:spin .7s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-
-  /* modus + dag tabs */
-  .modes{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:10px}
-  .modes button{font-family:var(--disp);font-weight:700;letter-spacing:.06em;font-size:14px;text-transform:uppercase;color:var(--muted);background:transparent;border:0;padding:11px 4px;border-radius:10px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
-  .modes button svg{opacity:.8}
-  .modes button.on{background:var(--card-hi);color:var(--txt);box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
-  .modes button.on svg{opacity:1}
 
   .locbar{display:flex;gap:8px;margin-bottom:6px;position:relative;z-index:20}
   .search{flex:1;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 12px}
@@ -60,22 +55,42 @@
   .toggle button.on{background:var(--card-hi);color:var(--txt);box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:12px}
+  .ctitle{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px}
 
-  /* commute leg header */
-  .leg{display:flex;align-items:baseline;gap:9px;margin-bottom:12px;padding-bottom:11px;border-bottom:1px solid var(--line)}
-  .leg-when{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.04em;text-transform:uppercase}
-  .leg-loc{font-family:var(--disp);font-weight:600;font-size:14px;color:var(--cool);display:flex;align-items:center;gap:5px}
+  /* ride window */
+  .ride{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .field label{display:block;font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  select,.ed input[type=text]{width:100%;background:var(--card-hi);border:1px solid var(--line);color:var(--txt);font-family:var(--ui);font-size:15px;padding:10px 10px;border-radius:10px;outline:0;appearance:none;-webkit-appearance:none}
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7888' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;background:var(--card-hi);border-radius:11px;padding:3px}
+  .seg button{font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:transparent;border:0;padding:9px 2px;border-radius:8px;cursor:pointer}
+  .seg button.on{background:var(--card);color:var(--txt)}
+  .seg button small{display:block;font-family:var(--ui);font-size:10px;letter-spacing:0;text-transform:none;opacity:.8}
+
+  /* what to wear */
+  .wsum{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-bottom:10px}
+  .wsum b{color:var(--txt);font-weight:600}
+  .wbase{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+  .wbase b{font-family:var(--disp);font-size:15px;color:var(--hivis)}
+  .note{font-size:13px;line-height:1.45;padding:9px 11px;border-radius:10px;margin-bottom:8px;background:rgba(72,169,240,.1);color:#BFE0FA}
+  .note.warn{background:rgba(224,169,59,.12);color:#F3D29A}
+  .wrow{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  .wrow:last-of-type{border-bottom:0}
+  .wcat{flex:0 0 92px;font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .witems{flex:1;font-size:14.5px;line-height:1.45}
+  .witems .or{color:var(--muted);font-size:12px;margin:0 5px}
+  .witems .missing{color:var(--warn);font-size:13px}
+  .cond{font-size:10.5px;color:var(--cool);border:1px solid rgba(72,169,240,.35);border-radius:6px;padding:0 5px;margin-left:5px;white-space:nowrap}
+  .calib{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+  .calib span{flex:1;line-height:1.35}
+  .pill{background:var(--card-hi);border:1px solid var(--line);color:var(--txt);font-size:12.5px;padding:8px 11px;border-radius:10px;cursor:pointer;white-space:nowrap}
+  .pill:active{transform:scale(.95)}
 
   .hrow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line)}
   .hrow:last-child{border-bottom:0}
-  .hrow.hr-head{padding:4px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:2px}
-  .hrow.hr-head .rn-mm{font-family:var(--disp);font-weight:600;font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
-  /* werk-modus: twee mm naast elkaar + gedeelde % gecentreerd eronder */
-  .hr-rain{display:flex;flex-direction:column;flex:0 0 auto;width:108px;line-height:1.2}
-  .hr-rain-cols{display:flex;justify-content:space-between;gap:12px}
-  .hr-rain-cols .rn-mm{width:48px;text-align:right;display:block}
-  .hr-rain .rn-p{text-align:center;width:100%;margin-top:1px}
+  .hrow.in-win{background:rgba(200,250,60,.05);box-shadow:inset 3px 0 0 var(--hivis);border-radius:4px}
   .hr-t{font-family:var(--disp);font-weight:600;font-size:15px;width:32px;color:var(--muted);flex:0 0 auto;font-variant-numeric:tabular-nums}
+  .in-win .hr-t{color:var(--txt)}
   .hr-ar{width:22px;flex:0 0 auto;display:grid;place-items:center}
   .hr-w{display:flex;align-items:baseline;gap:6px;flex:1;min-width:0}
   .hr-bft{font-family:var(--disp);font-weight:700;font-size:18px;padding:1px 7px;border-radius:7px;line-height:1.35}
@@ -94,6 +109,34 @@
   .skel{opacity:.4;animation:pulse 1.2s ease-in-out infinite}
   @keyframes pulse{50%{opacity:.18}}
 
+  /* wardrobe editor */
+  .ed{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+  .ed.open{display:block}
+  .ed-in{max-width:440px;margin:0 auto;padding:0 16px calc(40px + env(safe-area-inset-bottom))}
+  .ed-head{position:sticky;top:0;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:18px 0 12px;z-index:2}
+  .ed-head h2{font-family:var(--disp);font-weight:700;font-size:24px;letter-spacing:.06em}
+  .ed-done{background:var(--hivis);color:#0D1117;border:0;font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.05em;padding:9px 18px;border-radius:11px;cursor:pointer}
+  .ed-sec{font-family:var(--disp);font-weight:700;font-size:13px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin:18px 2px 8px}
+  .ed-cat{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .ed-cat input[type=text]{flex:1}
+  .ed-opt{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap}
+  .ed-opt input{width:18px;height:18px;accent-color:var(--hivis)}
+  .ic{background:var(--card);border:1px solid var(--line);color:var(--muted);width:38px;height:38px;border-radius:10px;cursor:pointer;flex:0 0 auto;font-size:15px}
+  .ic.del{color:#EF7E7E}
+  .ed-group{font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.05em;text-transform:uppercase;margin:20px 2px 8px;color:var(--hivis)}
+  .ed-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px}
+  .ed-row{display:flex;gap:8px;align-items:center}
+  .ed-row+.ed-row{margin-top:8px}
+  .ed-row select{font-size:13.5px;padding:8px 26px 8px 9px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .chip{background:transparent;border:1px solid var(--line);color:var(--muted);font-family:var(--disp);font-weight:600;font-size:13.5px;padding:6px 9px;border-radius:8px;cursor:pointer;min-width:44px;font-variant-numeric:tabular-nums}
+  .chip.on{background:rgba(200,250,60,.14);border-color:rgba(200,250,60,.5);color:var(--hivis)}
+  .ed-add{width:100%;background:transparent;border:1px dashed rgba(255,255,255,.15);color:var(--muted);font-size:13.5px;padding:10px;border-radius:12px;cursor:pointer;margin-bottom:4px}
+  .ed-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px}
+  .ed-foot button{background:var(--card);border:1px solid var(--line);color:var(--txt);font-size:14px;padding:12px;border-radius:12px;cursor:pointer}
+  .ed-foot .reset{grid-column:1/-1;color:#EF7E7E}
+  .ed-src{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:#222C38;border:1px solid var(--line);color:var(--txt);font-size:13px;padding:11px 16px;border-radius:12px;opacity:0;transition:.25s;pointer-events:none;z-index:60;max-width:88%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -102,56 +145,73 @@
 
 <header>
   <div class="brand">
-    <h1>WIELERWEER</h1>
-    <div class="loc" id="loc"><span class="skel">laden…</span></div>
+    <h1>HEADWIND</h1>
+    <div class="loc" id="loc"><span class="skel">loading…</span></div>
   </div>
-  <button class="refresh" id="refresh" aria-label="Vernieuwen">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-  </button>
+  <div class="hbtns">
+    <button class="refresh" id="wardrobe" aria-label="Edit wardrobe">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6a2 2 0 1 1 2 2c-1 0-2 .6-2 1.6V10"/><path d="M12 10 3 16.5c-.9.7-.4 2 .7 2h16.6c1.1 0 1.6-1.3.7-2Z"/></svg>
+    </button>
+    <button class="refresh" id="refresh" aria-label="Refresh">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+  </div>
 </header>
-
-<div class="modes">
-  <button id="m-rit" class="on">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5.5 17.5 10 7h4l2.5 4.5M9 7h5"/></svg>
-    Rit
-  </button>
-  <button id="m-werk">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-    Werk
-  </button>
-</div>
 
 <div class="locbar" id="locbar">
   <div class="search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-    <input id="q" placeholder="Andere plaats zoeken…" autocomplete="off" spellcheck="false">
+    <input id="q" placeholder="Search another place…" autocomplete="off" spellcheck="false">
   </div>
-  <button class="gps" id="gps" aria-label="Mijn locatie">
+  <button class="gps" id="gps" aria-label="My location">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.7-6-10a6 6 0 1 1 12 0c0 4.3-6 10-6 10Z"/><circle cx="12" cy="11" r="2.3"/></svg>
   </button>
   <div id="results"></div>
 </div>
-<div class="hint" id="hint">Standaard: Haalderen. Zoek een plaats of tik op het pin-icoon voor GPS.</div>
+<div class="hint" id="hint">Default: Haalderen. Search a place or tap the pin for GPS.</div>
 
 <div class="tabbar-sticky">
   <div class="toggle" id="tabs"></div>
 </div>
 
 <div id="app"></div>
+<div class="ed" id="editor"><div class="ed-in" id="editor-in"></div></div>
+<input type="file" id="import-file" accept="application/json,.json" hidden>
 <div class="toast" id="toast"></div>
 
 <script>
 const HAALDEREN={lat:51.886,lon:5.942,name:"Haalderen"};
-const ARNHEM={lat:51.985,lon:5.899,name:"Arnhem"};
-const HUISSEN={lat:51.929,lon:5.940,name:"Huissen"};
-let state={mode:"rit",view:0,data:null,loc:HAALDEREN,werk:null,werkError:false,error:null,results:[]};
+
+/* ---------- clothing constants ---------- */
+const BANDS=["<-3","-3-0","1-4","5-7","8-11","12-15","15+"];
+const INTENSITY={easy:{label:"Easy",shift:0},steady:{label:"Steady",shift:2},intervals:{label:"Intervals",shift:4}};
+const CONDITIONS={"":"Always",long:"Long rides only",short:"Short rides only",rain:"Rain only",dry:"Dry only"};
+const LONG_RIDE_MIN=75;   // ride counts as long when strictly longer than this
+const RAIN_PROB=40;       // % precipitation probability that counts as "rain"
+const SPREAD_HINT=4;      // °C feels-like spread within the window that triggers the layer hint
+const DURATIONS=[30,45,60,75,90,105,120,150,180,210,240,300,360];
+const LS={wardrobe:"headwind.wardrobe",calib:"headwind.calib",intensity:"headwind.intensity",duration:"headwind.duration"};
+
+function lsGet(k,def){try{const v=localStorage.getItem(k);return v===null?def:JSON.parse(v);}catch{return def;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch{return false;}}
+function lsDel(k){try{localStorage.removeItem(k);}catch{}}
+
+function nextHalfHour(){const n=new Date();let m=n.getHours()*60+n.getMinutes();m=Math.ceil(m/30)*30;return Math.min(Math.max(m,360),1260);}
+let state={view:0,data:null,loc:HAALDEREN,error:null,results:[],
+  wardrobe:null,defaults:null,
+  start:nextHalfHour(),duration:lsGet(LS.duration,90),
+  intensity:lsGet(LS.intensity,"steady"),calib:lsGet(LS.calib,0)};
+if(!INTENSITY[state.intensity])state.intensity="steady";
 
 function beaufort(k){const t=[1,6,12,20,29,39,50,62,75,89,103,118];for(let i=0;i<t.length;i++)if(k<t[i])return i;return 12;}
-const DIRS=["N","NNO","NO","ONO","O","OZO","ZO","ZZO","Z","ZZW","ZW","WZW","W","WNW","NW","NNW"];
-function dirNL(d){return DIRS[Math.round(d/22.5)%16];}
 function windColor(b){if(b<=1)return"#5B8DEF";if(b<=3)return"#33A8D6";if(b===4)return"#22B8A0";if(b===5)return"#E0A93B";if(b===6)return"#EF7E3C";return"#EF5C5C";}
 function tempColor(t){if(t<=2)return"#7FB2FF";if(t<=9)return"#9FD0EE";if(t<=16)return"#E6ECF2";if(t<=22)return"#FFC27A";if(t<=27)return"#FF8A3D";return"#FF6A4D";}
-function wmo(c){const m={0:["Onbewolkt","sun"],1:["Overwegend helder","sun"],2:["Half bewolkt","cloudsun"],3:["Bewolkt","cloud"],45:["Mist","fog"],48:["IJzelmist","fog"],51:["Lichte motregen","drizzle"],53:["Motregen","drizzle"],55:["Dichte motregen","drizzle"],56:["IJzel","drizzle"],57:["IJzel","drizzle"],61:["Lichte regen","rain"],63:["Regen","rain"],65:["Zware regen","rain"],66:["IJsregen","rain"],67:["IJsregen","rain"],71:["Lichte sneeuw","snow"],73:["Sneeuw","snow"],75:["Zware sneeuw","snow"],77:["Sneeuwkorrels","snow"],80:["Lichte buien","rain"],81:["Buien","rain"],82:["Zware buien","rain"],85:["Sneeuwbuien","snow"],86:["Sneeuwbuien","snow"],95:["Onweer","storm"],96:["Onweer + hagel","storm"],99:["Onweer + hagel","storm"]};return m[c]||["—","cloud"];}
+function wmo(c){const m={0:["Clear","sun"],1:["Mostly clear","sun"],2:["Partly cloudy","cloudsun"],3:["Overcast","cloud"],45:["Fog","fog"],48:["Freezing fog","fog"],51:["Light drizzle","drizzle"],53:["Drizzle","drizzle"],55:["Heavy drizzle","drizzle"],56:["Freezing drizzle","drizzle"],57:["Freezing drizzle","drizzle"],61:["Light rain","rain"],63:["Rain","rain"],65:["Heavy rain","rain"],66:["Freezing rain","rain"],67:["Freezing rain","rain"],71:["Light snow","snow"],73:["Snow","snow"],75:["Heavy snow","snow"],77:["Snow grains","snow"],80:["Light showers","rain"],81:["Showers","rain"],82:["Heavy showers","rain"],85:["Snow showers","snow"],86:["Snow showers","snow"],95:["Thunderstorm","storm"],96:["Thunderstorm + hail","storm"],99:["Thunderstorm + hail","storm"]};return m[c]||["—","cloud"];}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function hhmm(min){return String(Math.floor(min/60)).padStart(2,"0")+":"+String(min%60).padStart(2,"0");}
+function durLabel(min){const h=Math.floor(min/60),m=min%60;return h?(m?`${h}h${String(m).padStart(2,"0")}`:`${h}h`):`${m} min`;}
+function bandFor(t){t=Math.round(t);if(t<=-4)return 0;if(t<=0)return 1;if(t<=4)return 2;if(t<=7)return 3;if(t<=11)return 4;if(t<=15)return 5;return 6;}
+function bandLabel(i){return BANDS[i]+" °C";}
 
 function icon(kind,size=46){
   const st='stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"';
@@ -177,22 +237,113 @@ function dateForOffset(o){const b=new Date();b.setHours(0,0,0,0);const t=new Dat
 /* ---------- data ---------- */
 async function fetchAll(lat,lon){
   const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
-    +`&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability`
+    +`&hourly=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,precipitation_probability`
     +`&timezone=auto&forecast_days=7&wind_speed_unit=kmh`;
-  const r=await fetch(url);if(!r.ok)throw new Error("weer");return r.json();
+  const r=await fetch(url);if(!r.ok)throw new Error("weather");return r.json();
 }
 async function reverseGeo(lat,lon){
-  try{const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=nl`);const j=await r.json();return j.city||j.locality||j.principalSubdivision||"Jouw locatie";}catch{return"Jouw locatie";}
+  try{const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);const j=await r.json();return j.city||j.locality||j.principalSubdivision||"Your location";}catch{return"Your location";}
 }
 async function geocode(q){
-  try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=nl&format=json`);const j=await r.json();return j.results||[];}catch{return[];}
+  try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);const j=await r.json();return j.results||[];}catch{return[];}
 }
 
-/* ---------- gedeelde uur-rij ---------- */
-function hourRow(h,i){
+/* ---------- wardrobe list: defaults from wardrobe.json, edits in localStorage ---------- */
+function normalizeWardrobe(w){
+  if(!w||!Array.isArray(w.categories)||!Array.isArray(w.items))throw new Error("Not a Headwind wardrobe file");
+  const categories=w.categories.filter(c=>c&&c.id&&c.name).map(c=>({id:String(c.id),name:String(c.name),optional:!!c.optional}));
+  const catIds=new Set(categories.map(c=>c.id));
+  const items=w.items.filter(it=>it&&it.id&&it.name&&catIds.has(String(it.category))).map(it=>({
+    id:String(it.id),name:String(it.name),category:String(it.category),
+    bands:BANDS.filter(b=>Array.isArray(it.bands)&&it.bands.includes(b)),
+    condition:CONDITIONS[it.condition]&&it.condition?it.condition:""
+  }));
+  return{version:1,categories,items};
+}
+async function loadWardrobe(){
+  try{const r=await fetch("wardrobe.json",{cache:"no-cache"});state.defaults=normalizeWardrobe(await r.json());}catch{state.defaults=null;}
+  const local=lsGet(LS.wardrobe,null);
+  const fallback=state.defaults&&structuredClone(state.defaults);
+  try{state.wardrobe=local?normalizeWardrobe(local):fallback;}catch{state.wardrobe=fallback;}
+}
+function saveWardrobe(){if(!lsSet(LS.wardrobe,state.wardrobe))toast("Couldn't save on this device");}
+
+/* ---------- ride window + clothing advice ---------- */
+function windowIndices(){
+  const h=state.data.hourly,dateStr=dateForOffset(state.view);
+  const sH=Math.floor(state.start/60),eH=Math.min(23,Math.ceil((state.start+state.duration)/60));
+  return pickIndices(h,dateStr,sH,eH);
+}
+function computeAdvice(){
+  const h=state.data.hourly,idx=windowIndices();
+  if(!idx.length)return null;
+  const feels=idx.map(i=>h.apparent_temperature[i]);
+  const min=Math.min(...feels),max=Math.max(...feels);
+  const prob=Math.max(...idx.map(i=>h.precipitation_probability[i]??0));
+  const mm=idx.reduce((s,i)=>s+(h.precipitation[i]||0),0);
+  const wind=Math.max(...idx.map(i=>h.wind_speed_10m[i])),gust=Math.max(...idx.map(i=>h.wind_gusts_10m[i]??0));
+  const shift=INTENSITY[state.intensity].shift;
+  const eff=min+shift+state.calib,band=bandFor(eff);
+  const long=state.duration>LONG_RIDE_MIN,rain=prob>=RAIN_PROB;
+  const condOk=c=>!c||(c==="long"&&long)||(c==="short"&&!long)||(c==="rain"&&rain)||(c==="dry"&&!rain);
+  const w=state.wardrobe;
+  const groups=w?w.categories.map(c=>({cat:c,items:w.items.filter(it=>it.category===c.id&&it.bands.includes(BANDS[band])&&condOk(it.condition))})):[];
+  return{min,max,prob,mm,wind,gust,shift,eff,band,long,rain,groups};
+}
+
+function rideCard(){
+  const startOpts=[];for(let m=240;m<=1320;m+=30)startOpts.push(`<option value="${m}" ${m===state.start?"selected":""}>${hhmm(m)}</option>`);
+  const durOpts=DURATIONS.map(d=>`<option value="${d}" ${d===state.duration?"selected":""}>${durLabel(d)}</option>`).join("");
+  const seg=Object.entries(INTENSITY).map(([k,v])=>`<button data-int="${k}" class="${k===state.intensity?"on":""}">${v.label}<small>${v.shift?"+"+v.shift+" °C":"±0 °C"}</small></button>`).join("");
+  return`<div class="card">
+    <div class="ctitle">Your ride</div>
+    <div class="ride">
+      <div class="field"><label for="ride-start">Start</label><select id="ride-start">${startOpts.join("")}</select></div>
+      <div class="field"><label for="ride-dur">Duration</label><select id="ride-dur">${durOpts}</select></div>
+    </div>
+    <div class="field"><label>Intensity</label><div class="seg" id="intensity">${seg}</div></div>
+  </div>`;
+}
+function wearCard(){
+  if(!state.wardrobe)return`<div class="card"><div class="ctitle">What to wear</div><div class="note warn">Couldn't load the wardrobe list. Check your connection and refresh.</div></div>`;
+  const a=computeAdvice();
+  if(!a)return`<div class="card"><div class="ctitle">What to wear</div><div class="empty">No forecast for this ride window.</div></div>`;
+  const r=n=>Math.round(n);
+  const feelsTxt=r(a.min)===r(a.max)?`${r(a.min)}°`:`${r(a.min)}° → ${r(a.max)}°`;
+  const parts=[`coldest ${r(a.min)}°`];
+  if(a.shift)parts.push(`+${a.shift} intensity`);
+  if(state.calib)parts.push(`${state.calib>0?"+":"−"}${Math.abs(state.calib)} personal`);
+  const notes=[];
+  if(a.max-a.min>=SPREAD_HINT)notes.push(`<div class="note">Feels-like goes from ${r(a.min)}° to ${r(a.max)}° during your ride — start with a layer you can take off.</div>`);
+  if(a.rain)notes.push(`<div class="note">Rain likely (${a.prob}%, ${a.mm.toFixed(1)} mm in your window).</div>`);
+  const rows=[];
+  for(const g of a.groups){
+    if(g.items.length){
+      const list=g.items.map(it=>`${esc(it.name)}${it.condition?`<span class="cond">${esc(CONDITIONS[it.condition].replace(" only",""))}</span>`:""}`).join(`<span class="or">or</span>`);
+      rows.push(`<div class="wrow"><div class="wcat">${esc(g.cat.name)}</div><div class="witems">${list}</div></div>`);
+    }else if(!g.cat.optional){
+      rows.push(`<div class="wrow"><div class="wcat">${esc(g.cat.name)}</div><div class="witems"><span class="missing">⚠ Nothing in your list for ${bandLabel(a.band)} — add one in the wardrobe editor</span></div></div>`);
+    }
+  }
+  const calTxt=state.calib?`Personal adjustment: <b style="color:var(--txt)">${state.calib>0?"+":"−"}${Math.abs(state.calib)} °C</b>`:"Advice off? Nudge it 1 °C (saved on this device).";
+  return`<div class="card">
+    <div class="ctitle">What to wear</div>
+    <div class="wsum"><span>Feels <b>${feelsTxt}</b></span><span>Rain <b>${a.prob}%</b></span><span>Wind <b>${beaufort(a.wind)} Bft</b>, gusts <b>${r(a.gust)}</b> km/h</span></div>
+    <div class="wbase">Dressing for <b>${r(a.eff)}°</b> (${parts.join(" ")}) · band ${bandLabel(a.band)}${a.long?" · long ride":""}</div>
+    ${notes.join("")}
+    ${rows.join("")||`<div class="empty">Nothing to wear in this band yet.</div>`}
+    <div class="calib"><span>${calTxt}</span>
+      <button class="pill" data-cal="-1" title="Dress warmer from now on">I was cold</button>
+      <button class="pill" data-cal="1" title="Dress lighter from now on">I was warm</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- hourly rows ---------- */
+function hourRow(h,i,inWin){
   const bft=beaufort(h.wind_speed_10m[i]),wc=windColor(bft),[,kind]=wmo(h.weather_code[i]);
   const prob=h.precipitation_probability[i]??0,mm=h.precipitation[i]||0,temp=Math.round(h.temperature_2m[i]);
-  return`<div class="hrow">
+  return`<div class="hrow${inWin?" in-win":""}">
     <div class="hr-t">${h.time[i].slice(11,13)}h</div>
     <div class="hr-ar">${arrowSVG(h.wind_direction_10m[i],22)}</div>
     <div class="hr-w"><span class="hr-bft" style="color:${wc};background:${wc}22">${bft}</span></div>
@@ -203,75 +354,104 @@ function hourRow(h,i){
 function pickIndices(h,dateStr,startH,endH){
   const idx=[];for(let i=0;i<h.time.length;i++){const day=h.time[i].slice(0,10),hr=+h.time[i].slice(11,13);if(day===dateStr&&hr>=startH&&hr<=endH)idx.push(i);}return idx;
 }
-
-/* ---------- RIT: één dag, 06h–21h ---------- */
-function renderDay(offset){
-  const h=state.data.hourly,dateStr=dateForOffset(offset);
-  const startH=offset===0?Math.max(6,new Date().getHours()):6;
-  const idx=pickIndices(h,dateStr,startH,21);
-  if(!idx.length)return`<div class="card"><div class="empty">Geen rituren meer voor vandaag.<br><span>Bekijk een andere dag-tab.</span></div></div>`;
-  const rows=idx.map(i=>hourRow(h,i)).join("");
-  return`<div class="card">${rows}</div>`;
-}
-
-/* ---------- WERK: ochtend Haalderen→Arnhem, middag Arnhem→Haalderen, weer uit Huissen ---------- */
-function hourRowWerk(hHui,hHaal,hArn,i){
-  const bft=beaufort(hHui.wind_speed_10m[i]),wc=windColor(bft),[,kind]=wmo(hHui.weather_code[i]);
-  const temp=Math.round(hHui.temperature_2m[i]);
-  const mH=hHaal.precipitation[i]||0,mA=hArn.precipitation[i]||0;
-  const prob=hHui.precipitation_probability[i]??0;
-  return`<div class="hrow">
-    <div class="hr-t">${hHui.time[i].slice(11,13)}h</div>
-    <div class="hr-ar">${arrowSVG(hHui.wind_direction_10m[i],22)}</div>
-    <div class="hr-w"><span class="hr-bft" style="color:${wc};background:${wc}22">${bft}</span></div>
-    <div class="hr-tp" style="color:${tempColor(temp)}">${icon(kind,15)}${temp}°</div>
-    <div class="hr-rain">
-      <div class="hr-rain-cols">
-        <span class="rn-mm" style="color:${mH>0?'var(--cool)':'var(--muted)'}">${mH.toFixed(1)}mm</span>
-        <span class="rn-mm" style="color:${mA>0?'var(--cool)':'var(--muted)'}">${mA.toFixed(1)}mm</span>
-      </div>
-      <div class="rn-p" style="color:${prob>=40?'var(--cool)':'var(--muted)'}">${prob}%</div>
-    </div>
-  </div>`;
-}
-function rainHeader(){
-  return`<div class="hrow hr-head">
-    <div class="hr-t"></div><div class="hr-ar"></div><div class="hr-w"></div><div class="hr-tp"></div>
-    <div class="hr-rain"><div class="hr-rain-cols"><span class="rn-mm">HAAL</span><span class="rn-mm">ARN</span></div></div>
-  </div>`;
-}
-function commuteLeg(label,dirText,dateStr,startH,endH){
-  const hui=state.werk.hui.hourly,haal=state.werk.haal.hourly,arn=state.werk.arn.hourly;
-  const idx=pickIndices(hui,dateStr,startH,endH);
-  if(!idx.length)return null;
-  const rows=idx.map(i=>hourRowWerk(hui,haal,arn,i)).join("");
-  return`<div class="card"><div class="leg"><span class="leg-when">${label}</span><span class="leg-loc">${dirText}</span></div>${rainHeader()}${rows}</div>`;
-}
-function renderWerk(offset){
-  const dateStr=dateForOffset(offset);
-  const cur=offset===0?new Date().getHours():0;
-  const och=commuteLeg("Ochtend","Haalderen → Arnhem",dateStr,Math.max(7,cur),11);
-  const mid=commuteLeg("Middag","Arnhem → Haalderen",dateStr,Math.max(15,cur),19);
-  if(!och&&!mid)return`<div class="card"><div class="empty">Werkdag voorbij.<br><span>Bekijk een andere dag-tab.</span></div></div>`;
-  return(och||"")+(mid||"");
+function renderHours(){
+  const h=state.data.hourly,dateStr=dateForOffset(state.view);
+  const win=new Set(windowIndices());
+  const sH=Math.floor(state.start/60),eH=Math.ceil((state.start+state.duration)/60);
+  const first=Math.min(state.view===0?Math.max(6,new Date().getHours()):6,sH);
+  const idx=pickIndices(h,dateStr,first,Math.max(21,eH));
+  if(!idx.length)return"";
+  return`<div class="card">${idx.map(i=>hourRow(h,i,win.has(i))).join("")}</div>`;
 }
 
 /* ---------- render ---------- */
 function render(){
   const app=document.getElementById("app");
-  if(state.mode==="werk"){
-    if(state.werkError){app.innerHTML=`<div class="err"><h3>Geen weerdata</h3><p>Kon Haalderen/Arnhem niet ophalen. Probeer opnieuw.</p><button onclick="refreshNow()">Opnieuw proberen</button></div>`;return;}
-    if(!state.werk){app.innerHTML=`<div class="card skel" style="height:200px"></div><div class="card skel" style="height:200px"></div>`;return;}
-    app.innerHTML=renderWerk(state.view);return;
-  }
-  if(state.error){app.innerHTML=`<div class="err"><h3>Geen weerdata</h3><p>${state.error}</p><button onclick="refreshNow()">Opnieuw proberen</button></div>`;return;}
-  if(!state.data){app.innerHTML=`<div class="card skel" style="height:340px"></div>`;return;}
-  app.innerHTML=renderDay(state.view);
+  if(state.error){app.innerHTML=`<div class="err"><h3>No weather data</h3><p>${state.error}</p><button onclick="refreshNow()">Try again</button></div>`;return;}
+  if(!state.data){app.innerHTML=`<div class="card skel" style="height:180px"></div><div class="card skel" style="height:340px"></div>`;return;}
+  app.innerHTML=rideCard()+wearCard()+renderHours();
+  document.getElementById("ride-start").onchange=e=>{state.start=+e.target.value;render();};
+  document.getElementById("ride-dur").onchange=e=>{state.duration=+e.target.value;lsSet(LS.duration,state.duration);render();};
+  app.querySelectorAll("[data-int]").forEach(b=>b.onclick=()=>{state.intensity=b.dataset.int;lsSet(LS.intensity,state.intensity);render();});
+  app.querySelectorAll("[data-cal]").forEach(b=>b.onclick=()=>{
+    state.calib=Math.max(-6,Math.min(6,state.calib+(+b.dataset.cal)));lsSet(LS.calib,state.calib);render();
+    toast(b.dataset.cal==="-1"?"Got it — dressing you 1 °C warmer from now on":"Got it — dressing you 1 °C lighter from now on");
+  });
 }
 function renderLoc(){
   const n=new Date();const t=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
-  const name=state.mode==="werk"?"Haalderen ⇄ Arnhem":(state.loc?.name||"…");
-  document.getElementById("loc").innerHTML=`<span>${name}</span><span class="dot"></span><span>${t}</span>`;
+  document.getElementById("loc").innerHTML=`<span>${esc(state.loc?.name||"…")}</span><span class="dot"></span><span>${t}</span>`;
+}
+
+/* ---------- wardrobe editor ---------- */
+function newId(p){return p+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function findItem(id){return state.wardrobe.items.find(it=>it.id===id);}
+function renderEditor(){
+  const w=state.wardrobe,el=document.getElementById("editor-in");
+  if(!w){el.innerHTML=`<div class="ed-head"><h2>WARDROBE</h2><button class="ed-done" onclick="closeEditor()">Done</button></div><div class="note warn">Wardrobe list not loaded. Check your connection.</div>`;return;}
+  const catOpts=sel=>w.categories.map(c=>`<option value="${esc(c.id)}" ${c.id===sel?"selected":""}>${esc(c.name)}</option>`).join("");
+  const condOpts=sel=>Object.entries(CONDITIONS).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${v}</option>`).join("");
+  const cats=w.categories.map((c,ci)=>`<div class="ed-cat">
+      <input type="text" value="${esc(c.name)}" onchange="edCatName(${ci},this.value)" aria-label="Category name">
+      <label class="ed-opt"><input type="checkbox" ${c.optional?"checked":""} onchange="edCatOpt(${ci},this.checked)">optional</label>
+      <button class="ic" onclick="edCatMove(${ci})" aria-label="Move up">↑</button>
+      <button class="ic del" onclick="edCatDel(${ci})" aria-label="Delete category">✕</button>
+    </div>`).join("");
+  const groups=w.categories.map(c=>{
+    const items=w.items.filter(it=>it.category===c.id).map(it=>`<div class="ed-item">
+        <div class="ed-row"><input type="text" value="${esc(it.name)}" onchange="edItemName('${esc(it.id)}',this.value)" aria-label="Item name"><button class="ic del" onclick="edItemDel('${esc(it.id)}')" aria-label="Delete item">✕</button></div>
+        <div class="ed-row"><select onchange="edItemCat('${esc(it.id)}',this.value)" aria-label="Category">${catOpts(it.category)}</select><select onchange="edItemCond('${esc(it.id)}',this.value)" aria-label="Condition">${condOpts(it.condition)}</select></div>
+        <div class="chips">${BANDS.map(b=>`<button class="chip ${it.bands.includes(b)?"on":""}" onclick="edItemBand('${esc(it.id)}','${b}',this)">${b}</button>`).join("")}</div>
+      </div>`).join("");
+    return`<div class="ed-group">${esc(c.name)}</div>${items}<button class="ed-add" onclick="edItemAdd('${esc(c.id)}')">+ Add item to ${esc(c.name)}</button>`;
+  }).join("");
+  const src=lsGet(LS.wardrobe,null)?"You're using your own edited list (saved on this device).":"You're using the default list.";
+  el.innerHTML=`<div class="ed-head"><h2>WARDROBE</h2><button class="ed-done" onclick="closeEditor()">Done</button></div>
+    <div class="ed-src">Tap the temperature chips (feels-like °C) to set when an item is worn. Several items in one category for the same band are shown as choices. ${src}</div>
+    <div class="ed-sec">Categories</div>${cats}<button class="ed-add" onclick="edCatAdd()">+ Add category</button>
+    <div class="ed-sec">Items</div>${groups}
+    <div class="ed-foot">
+      <button onclick="exportWardrobe()">Export JSON</button>
+      <button onclick="document.getElementById('import-file').click()">Import JSON</button>
+      <button class="reset" onclick="resetWardrobe()">Reset to defaults</button>
+    </div>`;
+}
+function openEditor(){renderEditor();document.getElementById("editor").classList.add("open");document.body.style.overflow="hidden";}
+function closeEditor(){document.getElementById("editor").classList.remove("open");document.body.style.overflow="";render();}
+function edCatName(ci,v){v=v.trim();if(!v)return renderEditor();state.wardrobe.categories[ci].name=v;saveWardrobe();renderEditor();}
+function edCatOpt(ci,v){state.wardrobe.categories[ci].optional=v;saveWardrobe();}
+function edCatMove(ci){if(ci===0)return;const c=state.wardrobe.categories;[c[ci-1],c[ci]]=[c[ci],c[ci-1]];saveWardrobe();renderEditor();}
+function edCatDel(ci){
+  const c=state.wardrobe.categories[ci];
+  if(state.wardrobe.items.some(it=>it.category===c.id)){toast(`Move or delete the items in ${c.name} first`);return;}
+  if(!confirm(`Delete category "${c.name}"?`))return;
+  state.wardrobe.categories.splice(ci,1);saveWardrobe();renderEditor();
+}
+function edCatAdd(){const name=(prompt("Category name")||"").trim();if(!name)return;state.wardrobe.categories.push({id:newId("cat"),name,optional:true});saveWardrobe();renderEditor();}
+function edItemName(id,v){v=v.trim();const it=findItem(id);if(!it)return;if(!v)return renderEditor();it.name=v;saveWardrobe();}
+function edItemCat(id,v){findItem(id).category=v;saveWardrobe();renderEditor();}
+function edItemCond(id,v){findItem(id).condition=v;saveWardrobe();}
+function edItemBand(id,b,btn){const it=findItem(id);it.bands=it.bands.includes(b)?it.bands.filter(x=>x!==b):BANDS.filter(x=>x===b||it.bands.includes(x));btn.classList.toggle("on",it.bands.includes(b));saveWardrobe();}
+function edItemDel(id){const it=findItem(id);if(!confirm(`Delete "${it.name}"?`))return;state.wardrobe.items=state.wardrobe.items.filter(x=>x.id!==id);saveWardrobe();renderEditor();}
+function edItemAdd(catId){
+  const name=(prompt("Item name")||"").trim();if(!name)return;
+  state.wardrobe.items.push({id:newId("item"),name,category:catId,bands:[],condition:""});saveWardrobe();renderEditor();
+  toast("Added — now tap the temperature chips for it");
+}
+function exportWardrobe(){
+  const blob=new Blob([JSON.stringify(state.wardrobe,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`headwind-wardrobe-${dateForOffset(0)}.json`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.getElementById("import-file").onchange=async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const w=normalizeWardrobe(JSON.parse(await f.text()));state.wardrobe=w;saveWardrobe();renderEditor();toast(`Imported ${w.items.length} items`);}
+  catch(err){toast("Couldn't import: "+(err.message||"invalid file"));}
+};
+function resetWardrobe(){
+  if(!state.defaults){toast("Defaults not available offline");return;}
+  if(!confirm("Reset the wardrobe to the default list? Your edits on this device will be lost (export first if you want to keep them)."))return;
+  lsDel(LS.wardrobe);state.wardrobe=structuredClone(state.defaults);renderEditor();toast("Wardrobe reset to defaults");
 }
 
 /* ---------- load ---------- */
@@ -280,52 +460,40 @@ async function loadWeather(coords){
   try{
     const [data,name]=await Promise.all([fetchAll(coords.lat,coords.lon),coords.name?Promise.resolve(coords.name):reverseGeo(coords.lat,coords.lon)]);
     state.data=data;state.loc={lat:coords.lat,lon:coords.lon,name:coords.name||name};
-    if(state.mode==="rit"){renderLoc();render();}
-  }catch(e){state.error="Kon de weergegevens niet ophalen. Controleer je verbinding en probeer opnieuw.";if(state.mode==="rit")render();}
+    renderLoc();render();
+  }catch(e){state.error="Couldn't fetch the weather. Check your connection and try again.";render();}
   finally{document.getElementById("refresh").classList.remove("spin");}
 }
-async function loadWerk(){
-  if(state.werk)return;
-  state.werkError=false;document.getElementById("refresh").classList.add("spin");
-  try{const [haal,arn,hui]=await Promise.all([fetchAll(HAALDEREN.lat,HAALDEREN.lon),fetchAll(ARNHEM.lat,ARNHEM.lon),fetchAll(HUISSEN.lat,HUISSEN.lon)]);state.werk={haal,arn,hui};}
-  catch(e){state.werkError=true;}
-  finally{document.getElementById("refresh").classList.remove("spin");if(state.mode==="werk")render();}
-}
-function refreshNow(){
-  if(state.mode==="werk"){state.werk=null;render();loadWerk();}
-  else{state.data=null;render();loadWeather(state.loc||HAALDEREN);}
-}
+function refreshNow(){state.data=null;render();loadWeather(state.loc||HAALDEREN);}
 
 function tryGPS(silent){
   const btn=document.getElementById("gps");
-  if(!navigator.geolocation){if(!silent)toast("Geen GPS op dit apparaat");return;}
+  if(!navigator.geolocation){if(!silent)toast("No GPS on this device");return;}
   if(!silent)btn.classList.add("busy");
   const done={v:false};
-  const to=setTimeout(()=>{if(done.v)return;done.v=true;btn.classList.remove("busy");if(!silent)toast("GPS reageert niet — zoek de plaats handmatig");},6500);
+  const to=setTimeout(()=>{if(done.v)return;done.v=true;btn.classList.remove("busy");if(!silent)toast("GPS not responding — search for the place instead");},6500);
   navigator.geolocation.getCurrentPosition(
-    async p=>{if(done.v)return;done.v=true;clearTimeout(to);btn.classList.remove("busy");document.getElementById("q").value="";await loadWeather({lat:p.coords.latitude,lon:p.coords.longitude,name:null});if(!silent)toast("Locatie gevonden");},
-    e=>{if(done.v)return;done.v=true;clearTimeout(to);btn.classList.remove("busy");if(!silent)toast("GPS geblokkeerd in deze preview — werkt wel in de gehoste versie");},
+    async p=>{if(done.v)return;done.v=true;clearTimeout(to);btn.classList.remove("busy");document.getElementById("q").value="";await loadWeather({lat:p.coords.latitude,lon:p.coords.longitude,name:null});if(!silent)toast("Location found");},
+    e=>{if(done.v)return;done.v=true;clearTimeout(to);btn.classList.remove("busy");if(!silent)toast("GPS blocked — allow location access or search for the place");},
     {timeout:6000,maximumAge:300000,enableHighAccuracy:false}
   );
 }
 
 /* ---------- search ---------- */
-function showResults(list){const box=document.getElementById("results");if(!list.length){box.innerHTML="";return;}state.results=list;box.innerHTML=list.map((r,i)=>`<div class="res" onclick="pickResult(${i})">${r.name}<small>${[r.admin1,r.country_code].filter(Boolean).join(", ")}</small></div>`).join("");}
+function showResults(list){const box=document.getElementById("results");if(!list.length){box.innerHTML="";return;}state.results=list;box.innerHTML=list.map((r,i)=>`<div class="res" onclick="pickResult(${i})">${esc(r.name)}<small>${esc([r.admin1,r.country_code].filter(Boolean).join(", "))}</small></div>`).join("");}
 async function pickResult(i){const r=state.results[i];if(!r)return;document.getElementById("results").innerHTML="";document.getElementById("q").value=r.name;await loadWeather({lat:r.latitude,lon:r.longitude,name:r.name});}
 let qTimer;
 document.getElementById("q").addEventListener("input",e=>{clearTimeout(qTimer);const q=e.target.value.trim();if(q.length<2){document.getElementById("results").innerHTML="";return;}qTimer=setTimeout(async()=>{showResults(await geocode(q));},350);});
 document.getElementById("q").addEventListener("blur",()=>setTimeout(()=>{document.getElementById("results").innerHTML="";},180));
 
-/* ---------- events ---------- */
+/* ---------- day tabs ---------- */
 function getDayTabs(){
   const today=new Date();today.setHours(0,0,0,0);
-  const dowNames=['zo','ma','di','wo','do','vr','za'];
+  const dowNames=['sun','mon','tue','wed','thu','fri','sat'];
   const tabs=[];
   for(let offset=0;offset<7;offset++){
     const d=new Date(today);d.setDate(today.getDate()+offset);
-    const dow=d.getDay(),weekend=dow===0||dow===6;
-    if(state.mode==="werk"&&weekend)continue;
-    tabs.push({offset,label:offset===0?'NU':dowNames[dow]});
+    tabs.push({offset,label:offset===0?'NOW':dowNames[d.getDay()]});
   }
   return tabs;
 }
@@ -336,29 +504,15 @@ function renderTabs(){
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>setView(parseInt(b.dataset.offset)));
 }
 function setView(v){state.view=v;renderTabs();render();}
-async function setMode(mode){
-  state.mode=mode;
-  document.getElementById("m-rit").classList.toggle("on",mode==="rit");
-  document.getElementById("m-werk").classList.toggle("on",mode==="werk");
-  const rit=mode==="rit";
-  document.getElementById("locbar").style.display=rit?"flex":"none";
-  document.getElementById("hint").style.display=rit?"block":"none";
-  const tabs=getDayTabs();
-  if(!tabs.find(t=>t.offset===state.view))state.view=tabs[0].offset;
-  renderTabs();
-  renderLoc();
-  if(mode==="werk"){render();await loadWerk();}
-  else render();
-}
-document.getElementById("m-rit").onclick=()=>setMode("rit");
-document.getElementById("m-werk").onclick=()=>setMode("werk");
 document.getElementById("refresh").onclick=refreshNow;
+document.getElementById("wardrobe").onclick=openEditor;
 document.getElementById("gps").onclick=()=>tryGPS(false);
 
-/* ---------- init: direct Haalderen, daarna GPS proberen ---------- */
+/* ---------- init: Haalderen first, then try GPS ---------- */
 renderLoc();
 renderTabs();
-loadWeather(HAALDEREN).then(()=>tryGPS(true));
+render();
+Promise.all([loadWardrobe(),loadWeather(HAALDEREN)]).then(()=>{render();tryGPS(true);});
 
 if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));}
 </script>

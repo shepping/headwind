@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "head",   "name": "Head",       "optional": true },
+    { "id": "neck",   "name": "Neck",       "optional": true },
+    { "id": "base",   "name": "Base layer", "optional": false },
+    { "id": "jersey", "name": "Jersey",     "optional": true },
+    { "id": "jacket", "name": "Jacket",     "optional": true },
+    { "id": "legs",   "name": "Legs",       "optional": false },
+    { "id": "hands",  "name": "Hands",      "optional": false },
+    { "id": "shoes",  "name": "Shoes",      "optional": false },
+    { "id": "covers", "name": "Overshoes",  "optional": true },
+    { "id": "socks",  "name": "Socks",      "optional": true }
+  ],
+  "items": [
+    { "id": "cap-bbb",           "name": "BBB cap",                  "category": "head",   "bands": ["<-3"] },
+    { "id": "cap-castelli",      "name": "Castelli cap",             "category": "head",   "bands": ["-3-0", "1-4"] },
+    { "id": "headband",          "name": "Headband",                 "category": "head",   "bands": ["5-7", "8-11"] },
+    { "id": "buff",              "name": "Buff",                     "category": "neck",   "bands": ["<-3", "-3-0", "1-4", "5-7", "8-11", "12-15"] },
+    { "id": "base-long",         "name": "Long-sleeve base layer",   "category": "base",   "bands": ["<-3", "-3-0", "1-4", "5-7", "8-11", "12-15"] },
+    { "id": "base-merino-short", "name": "Merino short-sleeve base", "category": "base",   "bands": ["15+"] },
+    { "id": "jersey",            "name": "Jersey",                   "category": "jersey", "bands": ["<-3", "-3-0", "1-4", "8-11", "12-15", "15+"] },
+    { "id": "jacket-perfetto",   "name": "Perfetto winter jacket",   "category": "jacket", "bands": ["<-3", "-3-0", "1-4", "5-7"] },
+    { "id": "jacket-wind",       "name": "Wind jacket",              "category": "jacket", "bands": ["<-3", "8-11", "12-15"] },
+    { "id": "bib-shorts",        "name": "Bib shorts",               "category": "legs",   "bands": ["15+"] },
+    { "id": "shorts-legwarmers", "name": "Bib shorts + leg warmers", "category": "legs",   "bands": ["5-7", "8-11", "12-15"] },
+    { "id": "bib-tights",        "name": "Bib tights",               "category": "legs",   "bands": ["1-4", "5-7", "8-11"] },
+    { "id": "bib-tights-winter", "name": "Winter bib tights",        "category": "legs",   "bands": ["-3-0", "1-4"] },
+    { "id": "gloves-short",      "name": "Short-finger gloves",      "category": "hands",  "bands": ["8-11", "12-15", "15+"] },
+    { "id": "gloves-shimano",    "name": "Shimano gloves",           "category": "hands",  "bands": ["-3-0", "1-4", "5-7", "8-11"] },
+    { "id": "gloves-winter",     "name": "Winter gloves",            "category": "hands",  "bands": ["-3-0", "1-4", "5-7"] },
+    { "id": "shoes-summer",      "name": "Summer shoes",             "category": "shoes",  "bands": ["12-15", "15+"] },
+    { "id": "shoes-winter",      "name": "Winter shoes",             "category": "shoes",  "bands": ["-3-0", "1-4", "5-7", "8-11"] },
+    { "id": "overshoes-winter",  "name": "Winter overshoes",         "category": "covers", "bands": ["<-3", "-3-0", "1-4"] },
+    { "id": "shoe-covers",       "name": "Shoe covers",              "category": "covers", "bands": ["12-15"], "condition": "long" },
+    { "id": "socks-winter",      "name": "Winter socks",             "category": "socks",  "bands": ["-3-0", "1-4", "5-7"] }
+  ]
+}

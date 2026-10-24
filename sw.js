@@ -1,5 +1,5 @@
-const CACHE_NAME = "wielerweer-v1";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const CACHE_NAME = "headwind-v1";
+const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./wardrobe.json"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -17,7 +17,7 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
-  if (url.origin !== location.origin) return; // weer-API's altijd rechtstreeks naar het netwerk
+  if (url.origin !== location.origin) return; // weather APIs always go straight to the network
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request)
