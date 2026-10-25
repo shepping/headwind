@@ -1,4 +1,4 @@
-const CACHE_NAME = "headwind-v1";
+const CACHE_NAME = "headwind-v2";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./wardrobe.json"];
 
 self.addEventListener("install", (e) => {

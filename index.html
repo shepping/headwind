@@ -57,8 +57,15 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:12px}
   .ctitle{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px}
 
-  /* ride window */
-  .ride{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  /* plan panel under the tapped hour */
+  .tap-hint{font-size:12.5px;color:var(--muted);padding:0 4px 10px;border-bottom:1px solid var(--line)}
+  .plan{background:var(--card-hi);border-radius:14px;padding:14px;margin:6px 0 8px}
+  .plan .field+.field{margin-top:12px}
+  .plan .seg{background:var(--bg)}
+  .plan .seg button.on{background:var(--card)}
+  .seg.six{grid-template-columns:repeat(6,1fr)}
+  .plan-hint{font-size:12.5px;color:var(--muted);margin-top:12px}
+  .wear{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
   .field label{display:block;font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
   select,.ed input[type=text]{width:100%;background:var(--card-hi);border:1px solid var(--line);color:var(--txt);font-family:var(--ui);font-size:15px;padding:10px 10px;border-radius:10px;outline:0;appearance:none;-webkit-appearance:none}
   select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7888' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
@@ -86,7 +93,8 @@
   .pill{background:var(--card-hi);border:1px solid var(--line);color:var(--txt);font-size:12.5px;padding:8px 11px;border-radius:10px;cursor:pointer;white-space:nowrap}
   .pill:active{transform:scale(.95)}
 
-  .hrow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line)}
+  .hrow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;scroll-margin-top:72px}
+  .hrow.sel{background:rgba(200,250,60,.12)}
   .hrow:last-child{border-bottom:0}
   .hrow.in-win{background:rgba(200,250,60,.05);box-shadow:inset 3px 0 0 var(--hivis);border-radius:4px}
   .hr-t{font-family:var(--disp);font-weight:600;font-size:15px;width:32px;color:var(--muted);flex:0 0 auto;font-variant-numeric:tabular-nums}
@@ -189,27 +197,27 @@ const CONDITIONS={"":"Always",long:"Long rides only",short:"Short rides only",ra
 const LONG_RIDE_MIN=75;   // ride counts as long when strictly longer than this
 const RAIN_PROB=40;       // % precipitation probability that counts as "rain"
 const SPREAD_HINT=4;      // °C feels-like spread within the window that triggers the layer hint
-const DURATIONS=[30,45,60,75,90,105,120,150,180,210,240,300,360];
+const DURATIONS=[45,60,90,120,180,240];   // 240 is shown as "4h+"
 const LS={wardrobe:"headwind.wardrobe",calib:"headwind.calib",intensity:"headwind.intensity",duration:"headwind.duration"};
 
 function lsGet(k,def){try{const v=localStorage.getItem(k);return v===null?def:JSON.parse(v);}catch{return def;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch{return false;}}
 function lsDel(k){try{localStorage.removeItem(k);}catch{}}
 
-function nextHalfHour(){const n=new Date();let m=n.getHours()*60+n.getMinutes();m=Math.ceil(m/30)*30;return Math.min(Math.max(m,360),1260);}
 let state={view:0,data:null,loc:HAALDEREN,error:null,results:[],
   wardrobe:null,defaults:null,
-  start:nextHalfHour(),duration:lsGet(LS.duration,90),
-  intensity:lsGet(LS.intensity,"steady"),calib:lsGet(LS.calib,0)};
-if(!INTENSITY[state.intensity])state.intensity="steady";
+  startH:null,duration:lsGet(LS.duration,null),
+  intensity:lsGet(LS.intensity,null),calib:lsGet(LS.calib,0)};
+// remembered choices skip the questions; anything unknown means asking again
+if(!DURATIONS.includes(state.duration))state.duration=null;
+if(!INTENSITY[state.intensity])state.intensity=null;
 
 function beaufort(k){const t=[1,6,12,20,29,39,50,62,75,89,103,118];for(let i=0;i<t.length;i++)if(k<t[i])return i;return 12;}
 function windColor(b){if(b<=1)return"#5B8DEF";if(b<=3)return"#33A8D6";if(b===4)return"#22B8A0";if(b===5)return"#E0A93B";if(b===6)return"#EF7E3C";return"#EF5C5C";}
 function tempColor(t){if(t<=2)return"#7FB2FF";if(t<=9)return"#9FD0EE";if(t<=16)return"#E6ECF2";if(t<=22)return"#FFC27A";if(t<=27)return"#FF8A3D";return"#FF6A4D";}
 function wmo(c){const m={0:["Clear","sun"],1:["Mostly clear","sun"],2:["Partly cloudy","cloudsun"],3:["Overcast","cloud"],45:["Fog","fog"],48:["Freezing fog","fog"],51:["Light drizzle","drizzle"],53:["Drizzle","drizzle"],55:["Heavy drizzle","drizzle"],56:["Freezing drizzle","drizzle"],57:["Freezing drizzle","drizzle"],61:["Light rain","rain"],63:["Rain","rain"],65:["Heavy rain","rain"],66:["Freezing rain","rain"],67:["Freezing rain","rain"],71:["Light snow","snow"],73:["Snow","snow"],75:["Heavy snow","snow"],77:["Snow grains","snow"],80:["Light showers","rain"],81:["Showers","rain"],82:["Heavy showers","rain"],85:["Snow showers","snow"],86:["Snow showers","snow"],95:["Thunderstorm","storm"],96:["Thunderstorm + hail","storm"],99:["Thunderstorm + hail","storm"]};return m[c]||["—","cloud"];}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function hhmm(min){return String(Math.floor(min/60)).padStart(2,"0")+":"+String(min%60).padStart(2,"0");}
-function durLabel(min){const h=Math.floor(min/60),m=min%60;return h?(m?`${h}h${String(m).padStart(2,"0")}`:`${h}h`):`${m} min`;}
+function durLabel(min){if(min===DURATIONS[DURATIONS.length-1])return`${min/60}h+`;const h=Math.floor(min/60),m=min%60;return h?(m?`${h}h${String(m).padStart(2,"0")}`:`${h}h`):`${m}m`;}
 function bandFor(t){t=Math.round(t);if(t<=-4)return 0;if(t<=0)return 1;if(t<=4)return 2;if(t<=7)return 3;if(t<=11)return 4;if(t<=15)return 5;return 6;}
 function bandLabel(i){return BANDS[i]+" °C";}
 
@@ -270,9 +278,9 @@ function saveWardrobe(){if(!lsSet(LS.wardrobe,state.wardrobe))toast("Couldn't sa
 
 /* ---------- ride window + clothing advice ---------- */
 function windowIndices(){
+  if(state.startH===null||!state.duration)return[];
   const h=state.data.hourly,dateStr=dateForOffset(state.view);
-  const sH=Math.floor(state.start/60),eH=Math.min(23,Math.ceil((state.start+state.duration)/60));
-  return pickIndices(h,dateStr,sH,eH);
+  return pickIndices(h,dateStr,state.startH,Math.min(23,Math.ceil(state.startH+state.duration/60)));
 }
 function computeAdvice(){
   const h=state.data.hourly,idx=windowIndices();
@@ -291,23 +299,21 @@ function computeAdvice(){
   return{min,max,prob,mm,wind,gust,shift,eff,band,long,rain,groups};
 }
 
-function rideCard(){
-  const startOpts=[];for(let m=240;m<=1320;m+=30)startOpts.push(`<option value="${m}" ${m===state.start?"selected":""}>${hhmm(m)}</option>`);
-  const durOpts=DURATIONS.map(d=>`<option value="${d}" ${d===state.duration?"selected":""}>${durLabel(d)}</option>`).join("");
+/* plan panel: opens under the tapped hour */
+function planPanel(){
+  const dur=DURATIONS.map(d=>`<button data-dur="${d}" class="${d===state.duration?"on":""}">${durLabel(d)}</button>`).join("");
   const seg=Object.entries(INTENSITY).map(([k,v])=>`<button data-int="${k}" class="${k===state.intensity?"on":""}">${v.label}<small>${v.shift?"+"+v.shift+" °C":"±0 °C"}</small></button>`).join("");
-  return`<div class="card">
-    <div class="ctitle">Your ride</div>
-    <div class="ride">
-      <div class="field"><label for="ride-start">Start</label><select id="ride-start">${startOpts.join("")}</select></div>
-      <div class="field"><label for="ride-dur">Duration</label><select id="ride-dur">${durOpts}</select></div>
-    </div>
-    <div class="field"><label>Intensity</label><div class="seg" id="intensity">${seg}</div></div>
+  const ready=state.duration&&state.intensity;
+  return`<div class="plan">
+    <div class="field"><label>Duration</label><div class="seg six">${dur}</div></div>
+    <div class="field"><label>Intensity</label><div class="seg">${seg}</div></div>
+    ${ready?`<div class="wear">${wearBlock()}</div>`:`<div class="plan-hint">Pick duration and intensity to see what to wear.</div>`}
   </div>`;
 }
-function wearCard(){
-  if(!state.wardrobe)return`<div class="card"><div class="ctitle">What to wear</div><div class="note warn">Couldn't load the wardrobe list. Check your connection and refresh.</div></div>`;
+function wearBlock(){
+  if(!state.wardrobe)return`<div class="ctitle">What to wear</div><div class="note warn">Couldn't load the wardrobe list. Check your connection and refresh.</div>`;
   const a=computeAdvice();
-  if(!a)return`<div class="card"><div class="ctitle">What to wear</div><div class="empty">No forecast for this ride window.</div></div>`;
+  if(!a)return`<div class="ctitle">What to wear</div><div class="empty">No forecast for this ride window.</div>`;
   const r=n=>Math.round(n);
   const feelsTxt=r(a.min)===r(a.max)?`${r(a.min)}°`:`${r(a.min)}° → ${r(a.max)}°`;
   const parts=[`coldest ${r(a.min)}°`];
@@ -326,8 +332,7 @@ function wearCard(){
     }
   }
   const calTxt=state.calib?`Personal adjustment: <b style="color:var(--txt)">${state.calib>0?"+":"−"}${Math.abs(state.calib)} °C</b>`:"Advice off? Nudge it 1 °C (saved on this device).";
-  return`<div class="card">
-    <div class="ctitle">What to wear</div>
+  return`<div class="ctitle">What to wear</div>
     <div class="wsum"><span>Feels <b>${feelsTxt}</b></span><span>Rain <b>${a.prob}%</b></span><span>Wind <b>${beaufort(a.wind)} Bft</b>, gusts <b>${r(a.gust)}</b> km/h</span></div>
     <div class="wbase">Dressing for <b>${r(a.eff)}°</b> (${parts.join(" ")}) · band ${bandLabel(a.band)}${a.long?" · long ride":""}</div>
     ${notes.join("")}
@@ -335,15 +340,14 @@ function wearCard(){
     <div class="calib"><span>${calTxt}</span>
       <button class="pill" data-cal="-1" title="Dress warmer from now on">I was cold</button>
       <button class="pill" data-cal="1" title="Dress lighter from now on">I was warm</button>
-    </div>
-  </div>`;
+    </div>`;
 }
 
 /* ---------- hourly rows ---------- */
-function hourRow(h,i,inWin){
+function hourRow(h,i,inWin,sel){
   const bft=beaufort(h.wind_speed_10m[i]),wc=windColor(bft),[,kind]=wmo(h.weather_code[i]);
   const prob=h.precipitation_probability[i]??0,mm=h.precipitation[i]||0,temp=Math.round(h.temperature_2m[i]);
-  return`<div class="hrow${inWin?" in-win":""}">
+  return`<div class="hrow${inWin?" in-win":""}${sel?" sel":""}" data-h="${+h.time[i].slice(11,13)}">
     <div class="hr-t">${h.time[i].slice(11,13)}h</div>
     <div class="hr-ar">${arrowSVG(h.wind_direction_10m[i],22)}</div>
     <div class="hr-w"><span class="hr-bft" style="color:${wc};background:${wc}22">${bft}</span></div>
@@ -356,22 +360,31 @@ function pickIndices(h,dateStr,startH,endH){
 }
 function renderHours(){
   const h=state.data.hourly,dateStr=dateForOffset(state.view);
+  const first=state.view===0?Math.max(6,new Date().getHours()):6;
+  if(state.startH!==null&&state.startH<first)state.startH=null;
   const win=new Set(windowIndices());
-  const sH=Math.floor(state.start/60),eH=Math.ceil((state.start+state.duration)/60);
-  const first=Math.min(state.view===0?Math.max(6,new Date().getHours()):6,sH);
+  const eH=state.startH===null?21:Math.ceil(state.startH+(state.duration||0)/60);
   const idx=pickIndices(h,dateStr,first,Math.max(21,eH));
-  if(!idx.length)return"";
-  return`<div class="card">${idx.map(i=>hourRow(h,i,win.has(i))).join("")}</div>`;
+  if(!idx.length)return`<div class="card"><div class="empty">No more riding hours today.<br><span>Pick another day.</span></div></div>`;
+  const rows=idx.map(i=>{
+    const sel=+h.time[i].slice(11,13)===state.startH;
+    return hourRow(h,i,win.has(i),sel)+(sel?planPanel():"");
+  }).join("");
+  const hint=state.startH===null?`<div class="tap-hint">Tap an hour to plan your ride</div>`:"";
+  return`<div class="card">${hint}${rows}</div>`;
 }
 
 /* ---------- render ---------- */
 function render(){
   const app=document.getElementById("app");
   if(state.error){app.innerHTML=`<div class="err"><h3>No weather data</h3><p>${state.error}</p><button onclick="refreshNow()">Try again</button></div>`;return;}
-  if(!state.data){app.innerHTML=`<div class="card skel" style="height:180px"></div><div class="card skel" style="height:340px"></div>`;return;}
-  app.innerHTML=rideCard()+wearCard()+renderHours();
-  document.getElementById("ride-start").onchange=e=>{state.start=+e.target.value;render();};
-  document.getElementById("ride-dur").onchange=e=>{state.duration=+e.target.value;lsSet(LS.duration,state.duration);render();};
+  if(!state.data){app.innerHTML=`<div class="card skel" style="height:420px"></div>`;return;}
+  app.innerHTML=renderHours();
+  app.querySelectorAll("[data-h]").forEach(row=>row.onclick=()=>{
+    const hr=+row.dataset.h;state.startH=state.startH===hr?null:hr;render();
+    const sel=app.querySelector(".hrow.sel");if(sel)sel.scrollIntoView({block:"start",behavior:"smooth"});
+  });
+  app.querySelectorAll("[data-dur]").forEach(b=>b.onclick=()=>{state.duration=+b.dataset.dur;lsSet(LS.duration,state.duration);render();});
   app.querySelectorAll("[data-int]").forEach(b=>b.onclick=()=>{state.intensity=b.dataset.int;lsSet(LS.intensity,state.intensity);render();});
   app.querySelectorAll("[data-cal]").forEach(b=>b.onclick=()=>{
     state.calib=Math.max(-6,Math.min(6,state.calib+(+b.dataset.cal)));lsSet(LS.calib,state.calib);render();
