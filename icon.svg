@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- full-bleed background so Android's maskable crop has no corners to cut -->
+  <rect width="100" height="100" fill="#0D1117"/>
+  <!-- scaled to stay inside the maskable safe zone (circle, radius 40) -->
+  <g stroke="#F2F6FA" stroke-width="7" stroke-linecap="round" fill="none" transform="translate(50 50) scale(.9) translate(-50 -50)">
+    <path d="M18 40 H58 a10 10 0 1 0 -10 -10"/>
+    <path d="M18 56 H70 a10 10 0 1 1 -10 10"/>
+    <path d="M18 72 H42"/>
+  </g>
+</svg>
