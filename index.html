@@ -60,11 +60,12 @@
 
   /* plan panel under the tapped hour */
   .tap-hint{font-size:12.5px;color:var(--muted);padding:0 4px 10px;border-bottom:1px solid var(--line)}
-  .plan{background:var(--card-hi);border-radius:14px;padding:14px;margin:6px 0 8px}
+  .plan{background:var(--card-hi);border-radius:14px;padding:14px 12px;margin:6px -14px 8px}
   .plan .field+.field{margin-top:12px}
   .plan .seg{background:var(--bg)}
   .plan .seg button.on{background:var(--card)}
   .seg.six{grid-template-columns:repeat(6,1fr)}
+  .seg.two{grid-template-columns:repeat(2,1fr)}
   .plan-hint{font-size:12.5px;color:var(--muted);margin-top:12px}
   .wear{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
   .field label{display:block;font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
@@ -82,12 +83,17 @@
   .wbase b{font-family:var(--disp);font-size:15px;color:var(--hivis)}
   .note{font-size:13px;line-height:1.45;padding:9px 11px;border-radius:10px;margin-bottom:8px;background:rgba(72,169,240,.1);color:#BFE0FA}
   .note.warn{background:rgba(224,169,59,.12);color:#F3D29A}
-  .wrow{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline}
-  .wrow:last-of-type{border-bottom:0}
-  .wcat{flex:0 0 92px;font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-  .witems{flex:1;font-size:14.5px;line-height:1.45}
-  .witems .or{color:var(--muted);font-size:12px;margin:0 5px}
-  .witems .missing{color:var(--warn);font-size:13px}
+  .fig{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 92px minmax(0,1fr);gap:6px;margin-top:10px}
+  .fig-col{display:grid;align-content:start;min-width:0}
+  .fig-l{grid-template-rows:minmax(118px,auto) minmax(170px,auto) auto}
+  .fig-r{grid-template-rows:minmax(186px,auto) auto;text-align:right;padding-top:34px}
+  .fig-body svg{display:block;width:100%;height:auto}
+  .fig-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  .zone{font-size:12.5px;line-height:1.35;padding-bottom:10px;min-width:0;overflow-wrap:break-word}
+  .zone-h{display:inline-block;font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .zone-i{margin-top:3px}
+  .zone .or{color:var(--muted);font-size:11.5px;margin-right:4px}
+  .zone .missing{color:var(--warn)}
   .cond{font-size:10.5px;color:var(--cool);border:1px solid rgba(72,169,240,.35);border-radius:6px;padding:0 5px;margin-left:5px;white-space:nowrap}
   .calib{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
   .calib span{flex:1;line-height:1.35}
@@ -132,6 +138,7 @@
   .ed-opt input{width:18px;height:18px;accent-color:var(--hivis)}
   .ic{background:var(--card);border:1px solid var(--line);color:var(--muted);width:38px;height:38px;border-radius:10px;cursor:pointer;flex:0 0 auto;font-size:15px}
   .ic.del{color:#EF7E7E}
+  .ic:disabled{opacity:.35}
   .ed-group{font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.05em;text-transform:uppercase;margin:20px 2px 8px;color:var(--hivis)}
   .ed-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px}
   .ed-row{display:flex;gap:8px;align-items:center}
@@ -193,13 +200,17 @@ const HAALDEREN={lat:51.886,lon:5.942,name:"Haalderen"};
 
 /* ---------- clothing constants ---------- */
 const BANDS=["<-3","-3-0","1-4","5-7","8-11","12-15","15+"];
+const BIKES={road:"Road",mtb:"MTB"};
+const BIKE_OPTS={"":"Road + MTB",road:"Road only",mtb:"MTB only"};
+const ZONES={head:"Head",torso:"Torso",hands:"Hands",legs:"Legs",feet:"Feet"};
+const ZONE_BY_CAT={head:"head",neck:"head",base:"torso",jersey:"torso",jacket:"torso",hands:"hands",legs:"legs",shoes:"feet",covers:"feet",socks:"feet"};   // for lists saved before zones existed
 const INTENSITY={easy:{label:"Easy",shift:0},steady:{label:"Steady",shift:2},intervals:{label:"Intervals",shift:4}};
 const CONDITIONS={"":"Always",long:"Long rides only",short:"Short rides only",rain:"Rain only",dry:"Dry only"};
 const LONG_RIDE_MIN=75;   // ride counts as long when strictly longer than this
 const RAIN_PROB=40;       // % precipitation probability that counts as "rain"
 const SPREAD_HINT=4;      // °C feels-like spread within the window that triggers the layer hint
 const DURATIONS=[45,60,90,120,180,240];   // 240 is shown as "4h+"
-const LS={wardrobe:"headwind.wardrobe",calib:"headwind.calib",intensity:"headwind.intensity",duration:"headwind.duration"};
+const LS={wardrobe:"headwind.wardrobe",calib:"headwind.calib",intensity:"headwind.intensity",duration:"headwind.duration",bike:"headwind.bike",calibs:"headwind.calibs"};
 
 function lsGet(k,def){try{const v=localStorage.getItem(k);return v===null?def:JSON.parse(v);}catch{return def;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch{return false;}}
@@ -208,10 +219,13 @@ function lsDel(k){try{localStorage.removeItem(k);}catch{}}
 let state={view:0,data:null,loc:HAALDEREN,error:null,results:[],
   wardrobe:null,defaults:null,
   startH:null,duration:lsGet(LS.duration,null),
-  intensity:lsGet(LS.intensity,null),calib:lsGet(LS.calib,0)};
+  intensity:lsGet(LS.intensity,null),bike:lsGet(LS.bike,null),
+  calibs:lsGet(LS.calibs,{road:lsGet(LS.calib,0),mtb:0})};
 // remembered choices skip the questions; anything unknown means asking again
 if(!DURATIONS.includes(state.duration))state.duration=null;
 if(!INTENSITY[state.intensity])state.intensity=null;
+if(!BIKES[state.bike])state.bike=null;
+function calib(){return state.calibs[state.bike]||0;}
 
 function beaufort(k){const t=[1,6,12,20,29,39,50,62,75,89,103,118];for(let i=0;i<t.length;i++)if(k<t[i])return i;return 12;}
 function windColor(b){if(b<=1)return"#5B8DEF";if(b<=3)return"#33A8D6";if(b===4)return"#22B8A0";if(b===5)return"#E0A93B";if(b===6)return"#EF7E3C";return"#EF5C5C";}
@@ -260,12 +274,13 @@ async function geocode(q){
 /* ---------- wardrobe list: defaults from wardrobe.json, edits in localStorage ---------- */
 function normalizeWardrobe(w){
   if(!w||!Array.isArray(w.categories)||!Array.isArray(w.items))throw new Error("Not a Headwind wardrobe file");
-  const categories=w.categories.filter(c=>c&&c.id&&c.name).map(c=>({id:String(c.id),name:String(c.name),optional:!!c.optional}));
+  const categories=w.categories.filter(c=>c&&c.id&&c.name).map(c=>({id:String(c.id),name:String(c.name),optional:!!c.optional,zone:ZONES[c.zone]?c.zone:(ZONE_BY_CAT[c.id]||"torso")}));
   const catIds=new Set(categories.map(c=>c.id));
   const items=w.items.filter(it=>it&&it.id&&it.name&&catIds.has(String(it.category))).map(it=>({
     id:String(it.id),name:String(it.name),category:String(it.category),
     bands:BANDS.filter(b=>Array.isArray(it.bands)&&it.bands.includes(b)),
-    condition:CONDITIONS[it.condition]&&it.condition?it.condition:""
+    condition:CONDITIONS[it.condition]&&it.condition?it.condition:"",
+    bike:BIKES[it.bike]?it.bike:""
   }));
   return{version:1,categories,items};
 }
@@ -292,23 +307,41 @@ function computeAdvice(){
   const mm=idx.reduce((s,i)=>s+(h.precipitation[i]||0),0);
   const wind=Math.max(...idx.map(i=>h.wind_speed_10m[i])),gust=Math.max(...idx.map(i=>h.wind_gusts_10m[i]??0));
   const shift=INTENSITY[state.intensity].shift;
-  const eff=min+shift+state.calib,band=bandFor(eff);
+  const eff=min+shift+calib(),band=bandFor(eff);
   const long=state.duration>LONG_RIDE_MIN,rain=prob>=RAIN_PROB;
   const condOk=c=>!c||(c==="long"&&long)||(c==="short"&&!long)||(c==="rain"&&rain)||(c==="dry"&&!rain);
   const w=state.wardrobe;
-  const groups=w?w.categories.map(c=>({cat:c,items:w.items.filter(it=>it.category===c.id&&it.bands.includes(BANDS[band])&&condOk(it.condition))})):[];
+  const groups=w?w.categories.map(c=>({cat:c,items:w.items.filter(it=>it.category===c.id&&(!it.bike||it.bike===state.bike)&&it.bands.includes(BANDS[band])&&condOk(it.condition))})):[];
   return{min,max,prob,mm,wind,gust,shift,eff,band,long,rain,groups};
 }
+
+/* body figure: invisible data-a points are where the leader lines end */
+const FIGURE=`<svg viewBox="0 0 100 340" aria-hidden="true"><g fill="#323E4E"><circle cx="50" cy="24" r="17"/><rect x="42" y="38" width="16" height="14" rx="4"/><rect x="26" y="50" width="48" height="112" rx="14"/><circle cx="11" cy="157" r="7.5"/><circle cx="89" cy="157" r="7.5"/><rect x="20" y="316" width="27" height="13" rx="6.5"/><rect x="53" y="316" width="27" height="13" rx="6.5"/></g><g stroke="#323E4E" stroke-linecap="round" fill="none"><path d="M31 62 12 148" stroke-width="11"/><path d="M69 62 88 148" stroke-width="11"/><path d="M39 160 36 312" stroke-width="16"/><path d="M61 160 64 312" stroke-width="16"/></g><g fill="none"><circle data-a="head" cx="33" cy="24" r=".5"/><circle data-a="hands" cx="6" cy="157" r=".5"/><circle data-a="feet" cx="20" cy="322" r=".5"/><circle data-a="torso" cx="74" cy="92" r=".5"/><circle data-a="legs" cx="72" cy="232" r=".5"/></g></svg>`;
+function drawLeaders(){
+  const fig=document.querySelector(".fig");if(!fig)return;
+  const o=fig.getBoundingClientRect();
+  fig.querySelector(".fig-lines").innerHTML=[...fig.querySelectorAll("[data-zone]")].map(el=>{
+    const h=el.querySelector(".zone-h");if(!h)return"";
+    const a=fig.querySelector(`[data-a="${el.dataset.zone}"]`).getBoundingClientRect(),r=h.getBoundingClientRect();
+    const x1=(el.closest(".fig-l")?r.right+4:r.left-4)-o.left,y1=r.top+r.height/2-o.top;
+    const x2=a.left+a.width/2-o.left,y2=a.top+a.height/2-o.top;
+    return`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#C8FA3C" stroke-width="1"/><circle cx="${x2}" cy="${y2}" r="2.5" fill="#C8FA3C"/>`;
+  }).join("");
+}
+window.addEventListener("resize",drawLeaders);
+document.fonts?.ready.then(drawLeaders);
 
 /* plan panel: opens under the tapped hour */
 function planPanel(){
   const dur=DURATIONS.map(d=>`<button data-dur="${d}" class="${d===state.duration?"on":""}">${durLabel(d)}</button>`).join("");
   const seg=Object.entries(INTENSITY).map(([k,v])=>`<button data-int="${k}" class="${k===state.intensity?"on":""}">${v.label}<small>${v.shift?"+"+v.shift+" °C":"±0 °C"}</small></button>`).join("");
-  const ready=state.duration&&state.intensity;
+  const bike=Object.entries(BIKES).map(([k,v])=>`<button data-bike="${k}" class="${k===state.bike?"on":""}">${v}</button>`).join("");
+  const ready=state.bike&&state.duration&&state.intensity;
   return`<div class="plan">
+    <div class="field"><label>Bike</label><div class="seg two">${bike}</div></div>
     <div class="field"><label>Duration</label><div class="seg six">${dur}</div></div>
     <div class="field"><label>Intensity</label><div class="seg">${seg}</div></div>
-    ${ready?`<div class="wear">${wearBlock()}</div>`:`<div class="plan-hint">Pick duration and intensity to see what to wear.</div>`}
+    ${ready?`<div class="wear">${wearBlock()}</div>`:`<div class="plan-hint">Pick bike, duration and intensity to see what to wear.</div>`}
   </div>`;
 }
 function wearBlock(){
@@ -319,25 +352,34 @@ function wearBlock(){
   const feelsTxt=r(a.min)===r(a.max)?`${r(a.min)}°`:`${r(a.min)}° → ${r(a.max)}°`;
   const parts=[`coldest ${r(a.min)}°`];
   if(a.shift)parts.push(`+${a.shift} intensity`);
-  if(state.calib)parts.push(`${state.calib>0?"+":"−"}${Math.abs(state.calib)} personal`);
+  if(calib())parts.push(`${calib()>0?"+":"−"}${Math.abs(calib())} personal`);
   const notes=[];
   if(a.max-a.min>=SPREAD_HINT)notes.push(`<div class="note">Feels-like goes from ${r(a.min)}° to ${r(a.max)}° during your ride — start with a layer you can take off.</div>`);
   if(a.rain)notes.push(`<div class="note">Rain likely (${a.prob}%, ${a.mm.toFixed(1)} mm in your window).</div>`);
-  const rows=[];
+  const lines={};
   for(const g of a.groups){
+    const z=g.cat.zone;
     if(g.items.length){
-      const list=g.items.map(it=>`${esc(it.name)}${it.condition?`<span class="cond">${esc(CONDITIONS[it.condition].replace(" only",""))}</span>`:""}`).join(`<span class="or">or</span>`);
-      rows.push(`<div class="wrow"><div class="wcat">${esc(g.cat.name)}</div><div class="witems">${list}</div></div>`);
+      const list=g.items.map((it,i)=>`<div class="zone-i">${i?`<span class="or">or</span>`:""}${esc(it.name)}${it.condition?`<span class="cond">${esc(CONDITIONS[it.condition].replace(" only",""))}</span>`:""}</div>`).join("");
+      (lines[z]=lines[z]||[]).push(list);
     }else if(!g.cat.optional){
-      rows.push(`<div class="wrow"><div class="wcat">${esc(g.cat.name)}</div><div class="witems"><span class="missing">⚠ Nothing in your list for ${bandLabel(a.band)} — add one in the wardrobe editor</span></div></div>`);
+      (lines[z]=lines[z]||[]).push(`<div class="zone-i missing">⚠ No ${esc(g.cat.name.toLowerCase())} for ${bandLabel(a.band)}</div>`);
     }
   }
-  const calTxt=state.calib?`Personal adjustment: <b style="color:var(--txt)">${state.calib>0?"+":"−"}${Math.abs(state.calib)} °C</b>`:"Advice off? Nudge it 1 °C (saved on this device).";
+  const zone=z=>`<div class="zone" data-zone="${z}">${lines[z]?`<span class="zone-h">${ZONES[z]}</span>${lines[z].join("")}`:""}</div>`;
+  const fig=Object.keys(lines).length?`<div class="fig">
+      <div class="fig-col fig-l">${zone("head")}${zone("hands")}${zone("feet")}</div>
+      <div class="fig-body">${FIGURE}</div>
+      <div class="fig-col fig-r">${zone("torso")}${zone("legs")}</div>
+      <svg class="fig-lines" aria-hidden="true"></svg>
+    </div>`:`<div class="empty">Nothing to wear in this band yet.</div>`;
+  const c=calib();
+  const calTxt=c?`${BIKES[state.bike]} adjustment: <b style="color:var(--txt)">${c>0?"+":"−"}${Math.abs(c)} °C</b>`:`Advice off? Nudge it 1 °C (saved per bike on this device).`;
   return`<div class="ctitle">What to wear</div>
     <div class="wsum"><span>Feels <b>${feelsTxt}</b></span><span>Rain <b>${a.prob}%</b></span><span>Wind <b>${beaufort(a.wind)} Bft</b>, gusts <b>${r(a.gust)}</b> km/h</span></div>
     <div class="wbase">Dressing for <b>${r(a.eff)}°</b> (${parts.join(" ")}) · band ${bandLabel(a.band)}${a.long?" · long ride":""}</div>
     ${notes.join("")}
-    ${rows.join("")||`<div class="empty">Nothing to wear in this band yet.</div>`}
+    ${fig}
     <div class="calib"><span>${calTxt}</span>
       <button class="pill" data-cal="-1" title="Dress warmer from now on">I was cold</button>
       <button class="pill" data-cal="1" title="Dress lighter from now on">I was warm</button>
@@ -385,12 +427,14 @@ function render(){
     const hr=+row.dataset.h;state.startH=state.startH===hr?null:hr;render();
     const sel=app.querySelector(".hrow.sel");if(sel)sel.scrollIntoView({block:"start",behavior:"smooth"});
   });
+  app.querySelectorAll("[data-bike]").forEach(b=>b.onclick=()=>{state.bike=b.dataset.bike;lsSet(LS.bike,state.bike);render();});
   app.querySelectorAll("[data-dur]").forEach(b=>b.onclick=()=>{state.duration=+b.dataset.dur;lsSet(LS.duration,state.duration);render();});
   app.querySelectorAll("[data-int]").forEach(b=>b.onclick=()=>{state.intensity=b.dataset.int;lsSet(LS.intensity,state.intensity);render();});
   app.querySelectorAll("[data-cal]").forEach(b=>b.onclick=()=>{
-    state.calib=Math.max(-6,Math.min(6,state.calib+(+b.dataset.cal)));lsSet(LS.calib,state.calib);render();
+    state.calibs[state.bike]=Math.max(-6,Math.min(6,calib()+(+b.dataset.cal)));lsSet(LS.calibs,state.calibs);render();
     toast(b.dataset.cal==="-1"?"Got it — dressing you 1 °C warmer from now on":"Got it — dressing you 1 °C lighter from now on");
   });
+  drawLeaders();
 }
 function renderLoc(){
   const n=new Date();const t=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
@@ -405,23 +449,32 @@ function renderEditor(){
   if(!w){el.innerHTML=`<div class="ed-head"><h2>WARDROBE</h2><button class="ed-done" onclick="closeEditor()">Done</button></div><div class="note warn">Wardrobe list not loaded. Check your connection.</div>`;return;}
   const catOpts=sel=>w.categories.map(c=>`<option value="${esc(c.id)}" ${c.id===sel?"selected":""}>${esc(c.name)}</option>`).join("");
   const condOpts=sel=>Object.entries(CONDITIONS).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${v}</option>`).join("");
-  const cats=w.categories.map((c,ci)=>`<div class="ed-cat">
-      <input type="text" value="${esc(c.name)}" onchange="edCatName(${ci},this.value)" aria-label="Category name">
-      <label class="ed-opt"><input type="checkbox" ${c.optional?"checked":""} onchange="edCatOpt(${ci},this.checked)">optional</label>
-      <button class="ic" onclick="edCatMove(${ci})" aria-label="Move up">↑</button>
-      <button class="ic del" onclick="edCatDel(${ci})" aria-label="Delete category">✕</button>
+  const zoneOpts=sel=>Object.entries(ZONES).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${v}</option>`).join("");
+  const bikeOpts=sel=>Object.entries(BIKE_OPTS).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${v}</option>`).join("");
+  const cats=w.categories.map((c,ci)=>`<div class="ed-item">
+      <div class="ed-row">
+        <input type="text" value="${esc(c.name)}" onchange="edCatName(${ci},this.value)" aria-label="Category name">
+        <button class="ic" onclick="edCatMove(${ci},-1)" aria-label="Move up" ${ci===0?"disabled":""}>↑</button>
+        <button class="ic" onclick="edCatMove(${ci},1)" aria-label="Move down" ${ci===w.categories.length-1?"disabled":""}>↓</button>
+        <button class="ic del" onclick="edCatDel(${ci})" aria-label="Delete category">✕</button>
+      </div>
+      <div class="ed-row">
+        <select onchange="edCatZone(${ci},this.value)" aria-label="Body zone">${zoneOpts(c.zone)}</select>
+        <label class="ed-opt"><input type="checkbox" ${c.optional?"checked":""} onchange="edCatOpt(${ci},this.checked)">optional</label>
+      </div>
     </div>`).join("");
   const groups=w.categories.map(c=>{
     const items=w.items.filter(it=>it.category===c.id).map(it=>`<div class="ed-item">
         <div class="ed-row"><input type="text" value="${esc(it.name)}" onchange="edItemName('${esc(it.id)}',this.value)" aria-label="Item name"><button class="ic del" onclick="edItemDel('${esc(it.id)}')" aria-label="Delete item">✕</button></div>
         <div class="ed-row"><select onchange="edItemCat('${esc(it.id)}',this.value)" aria-label="Category">${catOpts(it.category)}</select><select onchange="edItemCond('${esc(it.id)}',this.value)" aria-label="Condition">${condOpts(it.condition)}</select></div>
+        <div class="ed-row"><select onchange="edItemBike('${esc(it.id)}',this.value)" aria-label="Bike">${bikeOpts(it.bike)}</select></div>
         <div class="chips">${BANDS.map(b=>`<button class="chip ${it.bands.includes(b)?"on":""}" onclick="edItemBand('${esc(it.id)}','${b}',this)">${b}</button>`).join("")}</div>
       </div>`).join("");
     return`<div class="ed-group">${esc(c.name)}</div>${items}<button class="ed-add" onclick="edItemAdd('${esc(c.id)}')">+ Add item to ${esc(c.name)}</button>`;
   }).join("");
   const src=lsGet(LS.wardrobe,null)?"You're using your own edited list (saved on this device).":"You're using the default list.";
   el.innerHTML=`<div class="ed-head"><h2>WARDROBE</h2><button class="ed-done" onclick="closeEditor()">Done</button></div>
-    <div class="ed-src">Tap the temperature chips (feels-like °C) to set when an item is worn. Several items in one category for the same band are shown as choices. ${src}</div>
+    <div class="ed-src">Tap the temperature chips (feels-like °C) to set when an item is worn. Several items in one category for the same band are shown as choices. Use the arrows to set the order of the categories; that order is also used in What to wear. ${src}</div>
     <div class="ed-sec">Categories</div>${cats}<button class="ed-add" onclick="edCatAdd()">+ Add category</button>
     <div class="ed-sec">Items</div>${groups}
     <div class="ed-foot">
@@ -433,23 +486,25 @@ function renderEditor(){
 function openEditor(){renderEditor();document.getElementById("editor").classList.add("open");document.body.style.overflow="hidden";}
 function closeEditor(){document.getElementById("editor").classList.remove("open");document.body.style.overflow="";render();}
 function edCatName(ci,v){v=v.trim();if(!v)return renderEditor();state.wardrobe.categories[ci].name=v;saveWardrobe();renderEditor();}
+function edCatZone(ci,v){state.wardrobe.categories[ci].zone=v;saveWardrobe();}
 function edCatOpt(ci,v){state.wardrobe.categories[ci].optional=v;saveWardrobe();}
-function edCatMove(ci){if(ci===0)return;const c=state.wardrobe.categories;[c[ci-1],c[ci]]=[c[ci],c[ci-1]];saveWardrobe();renderEditor();}
+function edCatMove(ci,dir){const c=state.wardrobe.categories,to=ci+dir;if(to<0||to>=c.length)return;[c[to],c[ci]]=[c[ci],c[to]];saveWardrobe();renderEditor();}
 function edCatDel(ci){
   const c=state.wardrobe.categories[ci];
   if(state.wardrobe.items.some(it=>it.category===c.id)){toast(`Move or delete the items in ${c.name} first`);return;}
   if(!confirm(`Delete category "${c.name}"?`))return;
   state.wardrobe.categories.splice(ci,1);saveWardrobe();renderEditor();
 }
-function edCatAdd(){const name=(prompt("Category name")||"").trim();if(!name)return;state.wardrobe.categories.push({id:newId("cat"),name,optional:true});saveWardrobe();renderEditor();}
+function edCatAdd(){const name=(prompt("Category name")||"").trim();if(!name)return;state.wardrobe.categories.push({id:newId("cat"),name,optional:true,zone:"torso"});saveWardrobe();renderEditor();}
 function edItemName(id,v){v=v.trim();const it=findItem(id);if(!it)return;if(!v)return renderEditor();it.name=v;saveWardrobe();}
 function edItemCat(id,v){findItem(id).category=v;saveWardrobe();renderEditor();}
+function edItemBike(id,v){findItem(id).bike=v;saveWardrobe();}
 function edItemCond(id,v){findItem(id).condition=v;saveWardrobe();}
 function edItemBand(id,b,btn){const it=findItem(id);it.bands=it.bands.includes(b)?it.bands.filter(x=>x!==b):BANDS.filter(x=>x===b||it.bands.includes(x));btn.classList.toggle("on",it.bands.includes(b));saveWardrobe();}
 function edItemDel(id){const it=findItem(id);if(!confirm(`Delete "${it.name}"?`))return;state.wardrobe.items=state.wardrobe.items.filter(x=>x.id!==id);saveWardrobe();renderEditor();}
 function edItemAdd(catId){
   const name=(prompt("Item name")||"").trim();if(!name)return;
-  state.wardrobe.items.push({id:newId("item"),name,category:catId,bands:[],condition:""});saveWardrobe();renderEditor();
+  state.wardrobe.items.push({id:newId("item"),name,category:catId,bands:[],condition:"",bike:""});saveWardrobe();renderEditor();
   toast("Added — now tap the temperature chips for it");
 }
 function exportWardrobe(){
